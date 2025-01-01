@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ماتریس ایزنهاور</title>
+    <!-- لینک به فونت وزیر از Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Vazir&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Vazir', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .matrix {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            grid-gap: 20px;
+            margin-top: 40px;
+            width: 70%;
+        }
+
+        .section {
+            padding: 20px;
+            border-radius: 8px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            min-height: 200px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .task {
+            background-color: #d9f7be;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .delete-btn, .assign-btn, .time-btn {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 5px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin-right: 5px;
+        }
+
+        .delete-btn:hover, .assign-btn:hover, .time-btn:hover {
+            background-color: #45a049;
+        }
+
+        .form-container {
+            width: 28%;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: 40px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            text-align: left;
+        }
+
+        input, select, button {
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            font-family: 'Vazir', sans-serif;
+        }
+
+        button {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .reset-btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        .reset-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .form-container h2 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+        }
+
+        .form-container label {
+            font-size: 1.1em;
+        }
+
+        input, select {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .matrix {
+                width: 100%;
+                grid-template-columns: 1fr;
+            }
+
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .form-container {
+                width: 100%;
+                margin-top: 20px;
+            }
+        }
+
+   /* رنگ‌های مینیمال برای هر بخش */
+   #urgent-important {
+            background-color: #f8d7da; /* رنگ ملایم قرمز */
+        }
+
+        #not-urgent-important {
+            background-color: #d1ecf1; /* رنگ ملایم آبی */
+        }
+
+        #urgent-not-important {
+            background-color: #fff3cd; /* رنگ ملایم زرد */
+        }
+
+        #not-urgent-not-important {
+            background-color: #d6d8d9; /* رنگ خاکی و ملایم */
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- فرم اضافه کردن وظیفه -->
+        <div class="form-container">
+            <h2>اضافه کردن وظیفه جدید</h2>
+            <form id="task-form">
+                <label for="task-title">عنوان وظیفه:</label>
+                <input type="text" id="task-title" required>
+                
+                <label for="task-description">توضیحات:</label>
+                <input type="text" id="task-description" required>
+                
+                <label for="task-priority">اولویت:</label>
+                <select id="task-priority" required>
+                    <option value="urgent-important">مهم و فوری</option>
+                    <option value="not-urgent-important">مهم ولی غیر فوری</option>
+                    <option value="urgent-not-important">غیر مهم ولی فوری</option>
+                    <option value="not-urgent-not-important">غیر مهم و غیر فوری</option>
+                </select>
+                
+                <button type="submit">اضافه کردن وظیفه</button>
+            </form>
+            <!-- دکمه ریست کردن تسک‌ها -->
+            <button class="reset-btn" onclick="resetTasks()">ریست کردن تمام تسک‌ها</button>
+    </div>
+
+    <div class="matrix">
+        <!-- ماتریس ایزنهاور -->
+        <div class="section" id="urgent-important" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>همین حالا انجامش بده</h2>
+        </div>
+        <div class="section" id="not-urgent-important" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>براش وقت تعیین کن و انجامش بده</h2>
+        </div>
+        <div class="section" id="urgent-not-important" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>به یکی دیگه واگزارش کن</h2>
+        </div>
+        <div class="section" id="not-urgent-not-important" ondrop="drop(event)" ondragover="allowDrop(event)">
+            <h2>انجامش نده و حذفش کن</h2>
+        </div>
+    </div>
+
+</div>
+    <script>
+        // تابع مجاز کردن دراپ
+        function allowDrop(event) {
+            event.preventDefault();
+        }
+
+        // تابع شروع کشیدن
+        function drag(event) {
+            event.dataTransfer.setData("text", event.target.id);
+        }
+
+        // تابع انجام عمل دراپ
+        function drop(event) {
+            event.preventDefault();
+            const data = event.dataTransfer.getData("text");
+            const task = document.getElementById(data);
+            event.target.appendChild(task);
+        }
+
+        // بارگذاری وظایف از LocalStorage
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.forEach(task => {
+                const taskDiv = document.createElement("div");
+                taskDiv.classList.add("task");
+                taskDiv.setAttribute("draggable", "true");
+                taskDiv.setAttribute("ondragstart", "drag(event)");
+                taskDiv.id = task.id;
+
+                taskDiv.innerHTML = `
+                    <p><strong>${task.title}</strong></p>
+                    <p>${task.description}</p>
+                    <button class="delete-btn" onclick="deleteTask('${task.id}')">حذف</button>
+                `;
+                document.getElementById(task.priority).appendChild(taskDiv);
+            });
+        }
+
+        // اضافه کردن وظیفه جدید به LocalStorage
+        document.getElementById("task-form").addEventListener("submit", function (e) {
+            e.preventDefault();
+
+            const title = document.getElementById("task-title").value;
+            const description = document.getElementById("task-description").value;
+            const priority = document.getElementById("task-priority").value;
+            const time = new Date().toLocaleString(); // تعیین زمان به صورت پیش فرض
+            document.getElementById("task-title").value="";
+            document.getElementById("task-description").value="";
+            const task = {
+                id: new Date().getTime(), // شناسه یکتا برای هر وظیفه
+                title: title,
+                description: description,
+                priority: priority,
+                time: time
+            };
+
+            // دریافت وظایف موجود از LocalStorage
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            tasks.push(task);
+
+            // ذخیره وظیفه جدید در LocalStorage
+            localStorage.setItem("tasks", JSON.stringify(tasks));
+
+            // نمایش وظیفه جدید در صفحه
+            const taskDiv = document.createElement("div");
+            taskDiv.classList.add("task");
+            taskDiv.setAttribute("draggable", "true");
+            taskDiv.setAttribute("ondragstart", "drag(event)");
+            taskDiv.id = task.id;
+
+            taskDiv.innerHTML = `
+                <p><strong>${task.title}</strong></p>
+                <p>${task.description}</p>
+                <button class="delete-btn" onclick="deleteTask('${task.id}')">حذف</button>
+            `;
+            document.getElementById(task.priority).appendChild(taskDiv);
+        });
+
+        // حذف وظیفه
+        function deleteTask(id) {
+            const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+            const updatedTasks = tasks.filter(task => task.id !== parseInt(id));
+            localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+            document.getElementById(id).remove();
+        }
+
+        // بازنشانی تمام وظایف
+        function resetTasks() {
+            localStorage.removeItem("tasks");
+            const sections = document.querySelectorAll('.section');
+            sections.forEach(section => {
+                section.innerHTML = `<h2>${section.querySelector('h2').textContent}</h2>`;
+            });
+        }
+
+        // بارگذاری وظایف پس از بارگذاری صفحه
+        window.onload = loadTasks;
+    </script>
+</body>
+</html>
